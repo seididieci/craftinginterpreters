@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{6D510FFB-0421-4669-A309-F581FC1D7D2D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "locsdefineast", "tools\locsdefineast\locsdefineast.csproj", "{023FCDC7-21CC-41F3-961A-5092A39F9FC4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{12719421-639D-48AA-A922-D9225795E0E7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "locs", "src\locs\locs.csproj", "{72DB6B7D-4DFE-45C0-BD06-F3BF46DBEC9C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{023FCDC7-21CC-41F3-961A-5092A39F9FC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{023FCDC7-21CC-41F3-961A-5092A39F9FC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{023FCDC7-21CC-41F3-961A-5092A39F9FC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{023FCDC7-21CC-41F3-961A-5092A39F9FC4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72DB6B7D-4DFE-45C0-BD06-F3BF46DBEC9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72DB6B7D-4DFE-45C0-BD06-F3BF46DBEC9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72DB6B7D-4DFE-45C0-BD06-F3BF46DBEC9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72DB6B7D-4DFE-45C0-BD06-F3BF46DBEC9C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{023FCDC7-21CC-41F3-961A-5092A39F9FC4} = {6D510FFB-0421-4669-A309-F581FC1D7D2D}
+		{72DB6B7D-4DFE-45C0-BD06-F3BF46DBEC9C} = {12719421-639D-48AA-A922-D9225795E0E7}
+	EndGlobalSection
+EndGlobal

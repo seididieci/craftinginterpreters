@@ -1,0 +1,12 @@
+// This is a single line comment
+var x = 5;
+var y = 6;
+ /**
+  * This is a block comment
+  * 
+  * /** 
+  *  * with a nested comment
+  *  
+  **/
+  
+ var a = z + /* this comment is on a /* different line */ y + 10; 

@@ -22,13 +22,13 @@ static void defineAst(String outputDir, String baseName, Dictionary<string, stri
   string path = outputDir + "/" + baseName + ".cs";
   using StreamWriter writer = new StreamWriter(path, false, Encoding.UTF8);
 
-  writer.WriteLine("namespace Lox;");
+  writer.WriteLine("namespace Lox.Ast;");
   writer.WriteLine();
   writer.WriteLine("public abstract class " + baseName);
   writer.WriteLine("{");
 
   // The base accept() method.
-  writer.WriteLine("  public abstract R accept<R>(Visitor<R> visitor);");
+  writer.WriteLine("  public abstract R Accept<R>(IVisitor<R> visitor);");
   writer.WriteLine();
 
   defineVisitor(writer, baseName, types);
@@ -47,13 +47,13 @@ static void defineAst(String outputDir, String baseName, Dictionary<string, stri
 
 static void defineVisitor(StreamWriter writer, string baseName, Dictionary<string, string> types)
 {
-  writer.WriteLine("  public interface Visitor<R>");
+  writer.WriteLine("  public interface IVisitor<R>");
   writer.WriteLine("  {");
 
   foreach (var type in types)
   {
     var typeName = type.Key;
-    writer.WriteLine("    R visit" + typeName + baseName + "(" +
+    writer.WriteLine("    R Visit" + typeName + baseName + "(" +
         typeName + " " + baseName.ToLower() + ");");
   }
 
@@ -64,8 +64,8 @@ static void defineType(StreamWriter writer, string baseName, string className, s
 {
   // AutoConstructor
   writer.WriteLine();
-  writer.Write("  public class " + className);
-  writer.WriteLine("(" + fieldList + ")");
+  writer.Write($"  public class {className}");
+  writer.WriteLine($"({fieldList}) : Expr");
   writer.WriteLine("  {");
 
   // Store parameters in properties.
@@ -76,6 +76,13 @@ static void defineType(StreamWriter writer, string baseName, string className, s
     var type = field.Split(" ")[0];
     writer.WriteLine($"    public {type} {name.Substring(0, 1).ToUpper() + name.Substring(1)} {{ get; }} = " + name + ";");
   }
+
+  // Visitor pattern
+  writer.WriteLine();
+  writer.WriteLine($"    public override R Accept<R>(IVisitor<R> visitor)");
+  writer.WriteLine($"    {{");
+  writer.WriteLine($"      return visitor.Visit{className}{baseName}(this);");
+  writer.WriteLine($"    }}");
 
   writer.WriteLine("  }");
 }

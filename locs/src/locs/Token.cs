@@ -24,22 +24,22 @@ public enum TokenType
 
 public class Token
 {
-  public TokenType type { get; }
-  public String lexeme { get; }
-  public Object literal { get; }
-  public int line { get; }
+  public TokenType Type { get; }
+  public String Lexeme { get; }
+  public Object Literal { get; }
+  public int Line { get; }
 
   public Token(TokenType type, String lexeme, Object literal, int line)
   {
-    this.type = type;
-    this.lexeme = lexeme;
-    this.literal = literal;
-    this.line = line;
+    this.Type = type;
+    this.Lexeme = lexeme;
+    this.Literal = literal;
+    this.Line = line;
   }
 
   public override String ToString()
   {
-    return type + " " + lexeme + " " + literal;
+    return Type + " " + Lexeme + " " + Literal;
   }
 }
 

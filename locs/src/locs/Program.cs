@@ -50,15 +50,27 @@ public static class LoxInterpreter
     var scanner = new Lox.Scanner(source);
     var tokens = scanner.ScanTokens();
 
-    foreach (var token in tokens)
-    {
-      Console.WriteLine(token);
-    }
+    Parser parser = new Parser(tokens);
+    var expr = parser.Parse();
+
+    if (hadError)
+      return;
+
+    if (expr is not null)
+      Console.WriteLine(new Ast.AstPrinter().Print(expr));
   }
 
   public static void error(int line, string message)
   {
     report(line, "", message);
+  }
+
+  public static void error(Token token, String message)
+  {
+    if (token.Type == TokenType.EOF)
+      report(token.Line, " at end", message);
+    else
+      report(token.Line, " at '" + token.Lexeme + "'", message);
   }
 
   static void report(int line, string where, string message)

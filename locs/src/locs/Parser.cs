@@ -150,7 +150,7 @@ public class Parser(List<Token> tokens)
 
   private ParseError Error(Token token, String message)
   {
-    LoxInterpreter.error(token, message);
+    LoxLanguage.error(token, message);
     return new ParseError();
   }
 

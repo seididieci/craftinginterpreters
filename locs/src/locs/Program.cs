@@ -1,8 +1,10 @@
 ﻿namespace Lox;
 
-public static class LoxInterpreter
+public static class LoxLanguage
 {
+  static Runtime.Interpreter interpreter = new Runtime.Interpreter();
   static bool hadError = false;
+  static bool hadRuntimeError = false;
 
   public static void Main(string[] args)
   {
@@ -29,16 +31,21 @@ public static class LoxInterpreter
 
     if (hadError)
       Environment.Exit(65);
+
+    if (hadRuntimeError)
+      Environment.Exit(70);
   }
 
   static void runRepl()
   {
     Console.Write("lox_cs repl> ");
     var line = Console.ReadLine();
+
     while (line != null)
     {
       run(line);
       hadError = false;
+      hadRuntimeError = false;
 
       Console.Write("lox_cs repl> ");
       line = Console.ReadLine();
@@ -55,9 +62,8 @@ public static class LoxInterpreter
 
     if (hadError)
       return;
-
-    if (expr is not null)
-      Console.WriteLine(new Ast.AstPrinter().Print(expr));
+    
+    interpreter.Interpret(expr);
   }
 
   public static void error(int line, string message)
@@ -77,6 +83,12 @@ public static class LoxInterpreter
   {
     Console.Error.WriteLine("[line " + line + "] Error" + where + ": " + message);
     hadError = true;
+  }
+
+  public static void runtimeError(Runtime.RuntimeError error)
+  {
+    Console.Error.WriteLine("[line " + error.Token.Line + "] Runtime Error: " + error.Message);
+    hadRuntimeError = true;
   }
 }
 

@@ -1,13 +1,18 @@
+using Lox.Ast;
+
 namespace Lox.Runtime;
 
-public class Interpreter : Ast.Expr.IVisitor<object>
+public class Interpreter :
+  Ast.Expr.IVisitor<object>,
+  Ast.Stmt.IVisitor<object>
 {
-  public void Interpret(Ast.Expr expr)
+  private Environment globals = new Environment();
+  public void Interpret(List<Stmt> statements)
   {
     try
     {
-      var result = evaluate(expr);
-      Console.WriteLine(stringify(result));
+      foreach (Stmt statement in statements)
+        execute(statement);
     }
     catch (RuntimeError error)
     {
@@ -94,6 +99,43 @@ public class Interpreter : Ast.Expr.IVisitor<object>
     }
   }
 
+  public object VisitVariableExpr(Ast.Expr.Variable expr)
+  {
+    return globals.Get(expr.Name);
+  }
+
+  public object VisitExprssnStmt(Stmt.Exprssn stmt)
+  {
+    return evaluate(stmt.Expression);
+  }
+
+  public object VisitPrintStmt(Stmt.Print stmt)
+  {
+    var value = evaluate(stmt.Expression);
+    Console.WriteLine(stringify(value));
+    return value;
+  }
+
+  public object VisitVarStmt(Stmt.Var stmt)
+  {
+    object value = null;
+    if (stmt.Initializer != null)
+      value = evaluate(stmt.Initializer);
+    globals.Define(stmt.Name.Lexeme, value);
+    return value;
+  }
+  public object VisitAssignExpr(Ast.Expr.Assign expr)
+  {
+    var value = evaluate(expr.Value);
+    globals.Assign(expr.Name, value);
+    return value;
+  }
+
+  private object execute(Stmt stmt)
+  {
+    return stmt.Accept(this);
+  }
+
   private object evaluate(Ast.Expr expr)
   {
     return expr.Accept(this);
@@ -148,4 +190,5 @@ public class Interpreter : Ast.Expr.IVisitor<object>
 
     return obj.ToString();
   }
+
 }

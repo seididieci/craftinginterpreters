@@ -11,10 +11,18 @@ String outputDir = args[0];
 
 
 defineAst(outputDir, "Expr", new Dictionary<string, string>{
-    { "Binary","Expr left, Token Operator, Expr right"},
-    { "Grouping","Expr expression"},
-    { "Literal","Object value"},
-    { "Unary","Token Operator, Expr right"},
+  { "Assign", "Token name, Expr value"},
+  { "Binary", "Expr left, Token Operator, Expr right"},
+  { "Grouping", "Expr expression"},
+  { "Literal", "Object value"},
+  { "Unary", "Token Operator, Expr right"},
+  { "Variable", "Token name"},
+});
+
+defineAst(outputDir, "Stmt", new Dictionary<string, string>{
+  { "Exprssn" , "Expr expression" },
+  { "Print", "Expr expression" },
+  { "Var", "Token name, Expr initializer" },
 });
 
 static void defineAst(String outputDir, String baseName, Dictionary<string, string> types)
@@ -65,7 +73,7 @@ static void defineType(StreamWriter writer, string baseName, string className, s
   // AutoConstructor
   writer.WriteLine();
   writer.Write($"  public class {className}");
-  writer.WriteLine($"({fieldList}) : Expr");
+  writer.WriteLine($"({fieldList}) : {baseName}");
   writer.WriteLine("  {");
 
   // Store parameters in properties.

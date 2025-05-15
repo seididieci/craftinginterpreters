@@ -6,10 +6,23 @@ public abstract class Expr
 
   public interface IVisitor<R>
   {
+    R VisitAssignExpr(Assign expr);
     R VisitBinaryExpr(Binary expr);
     R VisitGroupingExpr(Grouping expr);
     R VisitLiteralExpr(Literal expr);
     R VisitUnaryExpr(Unary expr);
+    R VisitVariableExpr(Variable expr);
+  }
+
+  public class Assign(Token name, Expr value) : Expr
+  {
+    public Token Name { get; } = name;
+    public Expr Value { get; } = value;
+
+    public override R Accept<R>(IVisitor<R> visitor)
+    {
+      return visitor.VisitAssignExpr(this);
+    }
   }
 
   public class Binary(Expr left, Token Operator, Expr right) : Expr
@@ -52,6 +65,16 @@ public abstract class Expr
     public override R Accept<R>(IVisitor<R> visitor)
     {
       return visitor.VisitUnaryExpr(this);
+    }
+  }
+
+  public class Variable(Token name) : Expr
+  {
+    public Token Name { get; } = name;
+
+    public override R Accept<R>(IVisitor<R> visitor)
+    {
+      return visitor.VisitVariableExpr(this);
     }
   }
 }

@@ -6,21 +6,92 @@ public class Parser(List<Token> tokens)
 
   private class ParseError : Exception { }
 
-  public Ast.Expr Parse()
+  public List<Ast.Stmt> Parse()
   {
+    List<Ast.Stmt> statements = new List<Ast.Stmt>();
     try
     {
-      return Expression();
+      while (!IsAtEnd())
+        statements.Add(Declaration());
     }
     catch (ParseError)
     {
+      return new List<Ast.Stmt>();
+    }
+
+    return statements;
+  }
+
+  private Ast.Stmt Declaration()
+  {
+    try
+    {
+      if (Match(TokenType.VAR))
+        return VarDeclaration();
+      return Statement();
+    }
+    catch (ParseError)
+    {
+      Synchronize();
       return null;
     }
   }
 
+  private Ast.Stmt VarDeclaration()
+  {
+    Token name = Consume(TokenType.IDENTIFIER, "Expect variable name.");
+
+    Ast.Expr initializer = null;
+    if (Match(TokenType.EQUAL))
+      initializer = Expression();
+
+    Consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
+    return new Ast.Stmt.Var(name, initializer);
+  }
+
+  private Ast.Stmt Statement()
+  {
+    if (Match(TokenType.PRINT))
+      return PrintStatement();
+
+    return ExpressionStatement();
+  }
+
+  private Ast.Stmt ExpressionStatement()
+  {
+    Ast.Expr expr = Expression();
+    Consume(TokenType.SEMICOLON, "Expect ';' after expression.");
+    return new Ast.Stmt.Exprssn(expr);
+  }
+
+  private Ast.Stmt PrintStatement()
+  {
+    Ast.Expr expr = Expression();
+    Consume(TokenType.SEMICOLON, "Expect ';' after value.");
+    return new Ast.Stmt.Print(expr);
+  }
+
   private Ast.Expr Expression()
   {
-    return Equalty();
+    return Assignment();
+  }
+
+  private Ast.Expr Assignment()
+  {
+    Ast.Expr expr = Equalty();
+
+    if (Match(TokenType.EQUAL))
+    {
+      Token equals = Previous();
+      Ast.Expr value = Assignment();
+
+      if (expr is Ast.Expr.Variable variable)
+        return new Ast.Expr.Assign(variable.Name, value);
+
+      Error(equals, "Invalid assignment target.");
+    }
+
+    return expr;
   }
 
   private Ast.Expr Equalty()
@@ -103,6 +174,9 @@ public class Parser(List<Token> tokens)
 
     if (Match(TokenType.NUMBER, TokenType.STRING))
       return new Ast.Expr.Literal(Previous().Literal);
+
+    if (Match(TokenType.IDENTIFIER))
+      return new Ast.Expr.Variable(Previous());
 
     if (Match(TokenType.LEFT_PAREN))
     {

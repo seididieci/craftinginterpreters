@@ -1,6 +1,7 @@
 // This is a single line comment
 var x = 5;
-var y = 6;
+var y = x = 6;
+var z = 7;
  /**
   * This is a block comment
   * 
@@ -9,4 +10,7 @@ var y = 6;
   *  
   **/
   
- var a = z + /* this comment is on a /* different line */ y + 10; 
+print z = 3;
+ var a = z + x + /* this comment is on a /* different line */ y + 10; 
+
+ print a;

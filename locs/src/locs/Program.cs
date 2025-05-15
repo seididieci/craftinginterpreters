@@ -1,4 +1,4 @@
-﻿namespace Lox;
+namespace Lox;
 
 public static class LoxLanguage
 {
@@ -58,12 +58,14 @@ public static class LoxLanguage
     var tokens = scanner.ScanTokens();
 
     Parser parser = new Parser(tokens);
-    var expr = parser.Parse();
+    var statements = parser.Parse();
 
     if (hadError)
       return;
-    
-    interpreter.Interpret(expr);
+
+    var printer = new Ast.AstPrinter();
+    Console.WriteLine(printer.Print(statements));
+    interpreter.Interpret(statements);
   }
 
   public static void error(int line, string message)

@@ -36,6 +36,9 @@ public class AstPrinter :
     if (expr.Value is null)
       return "nil";
 
+    if (expr.Value is string stringLiteral)
+      return $"'{stringLiteral}'";
+
     return expr.Value.ToString();
   }
 
@@ -77,5 +80,61 @@ public class AstPrinter :
   public string VisitVarStmt(Stmt.Var stmt)
   {
     return parenthesize($"var {stmt.Name.Lexeme} =", stmt.Initializer ?? new Expr.Literal(null));
+  }
+
+  private int indentation = 0;
+  public string VisitBlockStmt(Stmt.Block stmt)
+  {
+    StringBuilder builder = new StringBuilder();
+
+    builder.AppendLine("{");
+
+    indentation++;
+    foreach (Stmt statement in stmt.Statements)
+    {
+      for (int i = 0; i < indentation; i++)
+        builder.Append("  ");
+      builder.AppendLine(statement.Accept(this));
+    }
+    indentation--;
+
+    for (int i = 0; i < indentation; i++)
+      builder.Append("  ");
+    builder.AppendLine("}");
+
+
+    return builder.ToString();
+  }
+
+  public string VisitIfStmt(Stmt.If stmt)
+  {
+    StringBuilder builder = new StringBuilder();
+    builder.Append("(if ");
+    builder.Append(stmt.Condition.Accept(this));
+    builder.Append(" ");
+    builder.Append(stmt.ThenBranch.Accept(this));
+    if (stmt.ElseBranch != null)
+    {
+      builder.Append(" else ");
+      builder.Append(stmt.ElseBranch.Accept(this));
+    }
+    builder.Append(")");
+    return builder.ToString();
+  }
+
+  public string VisitLogicalExpr(Expr.Logical expr)
+  {
+    return parenthesize(expr.Operator.Lexeme, expr.Left, expr.Right);
+  }
+
+  public string VisitWhileStmt(Stmt.While stmt)
+  {
+    StringBuilder builder = new StringBuilder();
+    builder.Append("(while ");
+    builder.Append(stmt.Condition.Accept(this));
+    builder.Append(" ");
+    builder.Append(stmt.Body.Accept(this));
+    builder.Append(")");
+    return builder.ToString();
   }
 }

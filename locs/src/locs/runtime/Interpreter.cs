@@ -121,9 +121,11 @@ public class Interpreter :
     object value = null;
     if (stmt.Initializer != null)
       value = evaluate(stmt.Initializer);
-    globals.Define(stmt.Name.Lexeme, value);
+
+    globals.Define(stmt.Name.Lexeme, value, stmt.Initializer != null);
     return value;
   }
+
   public object VisitAssignExpr(Ast.Expr.Assign expr)
   {
     var value = evaluate(expr.Value);
@@ -131,9 +133,64 @@ public class Interpreter :
     return value;
   }
 
+  public object VisitBlockStmt(Stmt.Block stmt)
+  {
+    executeBlock(stmt.Statements, new Environment(globals));
+    return null;
+  }
+
+  public object VisitIfStmt(Stmt.If stmt)
+  {
+    if (isTruthy(evaluate(stmt.Condition)))
+      execute(stmt.ThenBranch);
+    else if (stmt.ElseBranch != null)
+      execute(stmt.ElseBranch);
+    return null;
+  }
+
+  public object VisitWhileStmt(Stmt.While stmt)
+  {
+    while (isTruthy(evaluate(stmt.Condition)))
+      execute(stmt.Body);
+    return null;
+  }
+
+  public object VisitLogicalExpr(Expr.Logical expr)
+  {
+    object left = evaluate(expr.Left);
+
+    if (expr.Operator.Type == TokenType.OR)
+    {
+      if (isTruthy(left))
+        return left;
+    }
+    else
+    {
+      if (!isTruthy(left))
+        return left;
+    }
+
+    return evaluate(expr.Right);
+  }
+
   private object execute(Stmt stmt)
   {
     return stmt.Accept(this);
+  }
+
+  private void executeBlock(List<Stmt> statements, Environment environment)
+  {
+    Environment previous = globals;
+    try
+    {
+      globals = environment;
+      foreach (Stmt statement in statements)
+        execute(statement);
+    }
+    finally
+    {
+      globals = previous;
+    }
   }
 
   private object evaluate(Ast.Expr expr)

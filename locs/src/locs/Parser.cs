@@ -51,8 +51,20 @@ public class Parser(List<Token> tokens)
 
   private Ast.Stmt Statement()
   {
+    if (Match(TokenType.FOR))
+      return ForStatement();
+
+    if (Match(TokenType.IF))
+      return IfStatement();
+
     if (Match(TokenType.PRINT))
       return PrintStatement();
+
+    if (Match(TokenType.WHILE))
+      return WhileStatement();
+
+    if (Match(TokenType.LEFT_BRACE))
+      return new Ast.Stmt.Block(Block());
 
     return ExpressionStatement();
   }
@@ -64,11 +76,85 @@ public class Parser(List<Token> tokens)
     return new Ast.Stmt.Exprssn(expr);
   }
 
+  private Ast.Stmt IfStatement() {
+    Consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.");
+    Ast.Expr condition = Expression();
+    Consume(TokenType.RIGHT_PAREN, "Expect ')' after condition.");
+
+    Ast.Stmt thenBranch = Statement();
+    Ast.Stmt elseBranch = null;
+    if (Match(TokenType.ELSE))
+      elseBranch = Statement();
+
+    return new Ast.Stmt.If(condition, thenBranch, elseBranch);
+  }
+
   private Ast.Stmt PrintStatement()
   {
     Ast.Expr expr = Expression();
     Consume(TokenType.SEMICOLON, "Expect ';' after value.");
     return new Ast.Stmt.Print(expr);
+  }
+
+  private Ast.Stmt WhileStatement()
+  {
+    Consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.");
+    Ast.Expr condition = Expression();
+    Consume(TokenType.RIGHT_PAREN, "Expect ')' after condition.");
+
+    Ast.Stmt body = Statement();
+
+    return new Ast.Stmt.While(condition, body);
+  }
+
+  private Ast.Stmt ForStatement()
+  {
+    Consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.");
+
+    Ast.Stmt initializer;
+    if (Match(TokenType.SEMICOLON))
+      initializer = null;
+    else if (Match(TokenType.VAR))
+      initializer = VarDeclaration();
+    else
+      initializer = ExpressionStatement();
+
+    Ast.Expr condition = null;
+    if (!Check(TokenType.SEMICOLON))
+      condition = Expression();
+
+    Consume(TokenType.SEMICOLON, "Expect ';' after loop condition.");
+
+    Ast.Expr increment = null;
+    if (!Check(TokenType.RIGHT_PAREN))
+      increment = Expression();
+
+    Consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses.");
+
+    Ast.Stmt body = Statement();  
+
+    if (increment != null)
+      body = new Ast.Stmt.Block(new List<Ast.Stmt> { body, new Ast.Stmt.Exprssn(increment) });
+
+    if (condition == null)
+      condition = new Ast.Expr.Literal(true);
+    body = new Ast.Stmt.While(condition, body);
+
+    if (initializer != null)
+      body = new Ast.Stmt.Block(new List<Ast.Stmt> { initializer, body });
+
+    return body;
+  }
+
+  private List<Ast.Stmt> Block()
+  {
+    List<Ast.Stmt> statements = new List<Ast.Stmt>();
+
+    while (!Check(TokenType.RIGHT_BRACE) && !IsAtEnd())
+      statements.Add(Declaration());
+
+    Consume(TokenType.RIGHT_BRACE, "Expect '}' after block.");
+    return statements;
   }
 
   private Ast.Expr Expression()
@@ -78,7 +164,7 @@ public class Parser(List<Token> tokens)
 
   private Ast.Expr Assignment()
   {
-    Ast.Expr expr = Equalty();
+    Ast.Expr expr = Or();
 
     if (Match(TokenType.EQUAL))
     {
@@ -91,6 +177,30 @@ public class Parser(List<Token> tokens)
       Error(equals, "Invalid assignment target.");
     }
 
+    return expr;
+  }
+
+  private Ast.Expr Or() {
+    Ast.Expr expr = And();
+
+    while (Match(TokenType.OR))
+    {
+      Token _operator = Previous();
+      Ast.Expr right = And();
+      expr = new Ast.Expr.Logical(expr, _operator, right);
+    }
+    return expr;
+  }
+
+  private Ast.Expr And() {
+    Ast.Expr expr = Equalty();
+
+    while (Match(TokenType.AND))
+    {
+      Token _operator = Previous();
+      Ast.Expr right = Equalty();
+      expr = new Ast.Expr.Logical(expr, _operator, right);
+    }
     return expr;
   }
 

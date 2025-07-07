@@ -1,4 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
+// See https://aka.ms/new-console-template for more information
 using System.Text;
 
 if (args.Length != 1)
@@ -15,14 +15,18 @@ defineAst(outputDir, "Expr", new Dictionary<string, string>{
   { "Binary", "Expr left, Token Operator, Expr right"},
   { "Grouping", "Expr expression"},
   { "Literal", "Object value"},
+  { "Logical", "Expr left, Token Operator, Expr right"},
   { "Unary", "Token Operator, Expr right"},
   { "Variable", "Token name"},
 });
 
 defineAst(outputDir, "Stmt", new Dictionary<string, string>{
+  { "Block", "List<Stmt> statements" }, 
   { "Exprssn" , "Expr expression" },
+  { "If", "Expr condition, Stmt thenBranch, Stmt elseBranch" },
   { "Print", "Expr expression" },
   { "Var", "Token name, Expr initializer" },
+  { "While", "Expr condition, Stmt body" },
 });
 
 static void defineAst(String outputDir, String baseName, Dictionary<string, string> types)
